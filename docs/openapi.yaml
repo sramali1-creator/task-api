@@ -3,6 +3,8 @@ info:
   title: Task API
   version: 1.0.0
 servers:
+  - url: /
+    description: Current server (works locally and on Render)
   - url: http://localhost:3000
     description: Local development servers
 tags:
@@ -14,8 +16,20 @@ paths:
   /tasks:
     get:
       summary: List all tasks
+      description: Returns all tasks. Use the optional `completed` query parameter to filter by completion status.
       tags:
         - Tasks
+      parameters:
+        - name: completed
+          in: query
+          required: false
+          description: Filter tasks by completion status. Omit to return all tasks.
+          schema:
+            type: string
+            enum:
+              - 'true'
+              - 'false'
+          example: 'true'
       responses:
         '200':
           description: OK
@@ -25,6 +39,23 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Task'
+        '400':
+          description: Invalid value for the completed query parameter
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  details:
+                    type: array
+                    items:
+                      type: string
+                example:
+                  error: Validation failed
+                  details:
+                    - completed must be true or false
     post:
       summary: Create a new task
       tags:
